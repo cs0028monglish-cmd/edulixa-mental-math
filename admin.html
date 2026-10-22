@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Edulixa Admin Panel</title>
+<link rel="icon" href="assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap">
+<style>
+:root{--green:#0F695D;--green-deep:#0A4A42;--green-ink:#06332D;--red:#D7311C;--red-bright:#EE3A23;--sun:#FFC93C;--foam:#F4FBF8;--line:#DCEDE8;--ink:#10251F;--muted:#4F6660;
+ --display:"Baloo 2","Trebuchet MS",system-ui,sans-serif;--body:"Nunito","Segoe UI",system-ui,sans-serif;color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;background:var(--foam);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px;border-radius:8px}
+[hidden]{display:none!important}
+.top{background:var(--green-ink);color:#fff;padding:12px max(16px,env(safe-area-inset-left));display:flex;align-items:center;gap:14px;flex-wrap:wrap;position:sticky;top:0;z-index:20}
+.top .lg{background:#fff;border-radius:999px;padding:5px 14px;display:flex}
+.top .lg img{height:28px}
+.top h1{font-family:var(--display);font-size:22px;margin:0;line-height:1;flex:1;min-width:160px}
+.top .me{font-weight:700;font-size:13.5px;opacity:.85}
+.pill{border:0;border-radius:999px;padding:8px 16px;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.pill.w{background:#fff;color:var(--green-ink)}
+.pill.r{background:var(--red);color:#fff}
+.pill.g{background:var(--green);color:#fff}
+.pill.y{background:var(--sun);color:var(--green-ink)}
+.pill.o{background:#fff;color:var(--green-ink);border:2px solid var(--line)}
+.pill.sm{padding:5px 11px;font-size:13px}
+.pill:disabled{opacity:.5;cursor:not-allowed}
+.tabs{display:flex;gap:6px;padding:14px max(16px,env(safe-area-inset-left)) 0;max-width:1200px;margin:0 auto;flex-wrap:wrap}
+.tabs button{border:0;background:transparent;font-weight:800;color:var(--muted);padding:10px 16px;border-radius:14px 14px 0 0;font-size:15px}
+.tabs button[aria-selected="true"]{background:#fff;color:var(--green-ink);box-shadow:0 -2px 0 var(--sun) inset}
+main{max-width:1200px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-left)) 60px}
+.panel{background:#fff;border-radius:0 18px 18px 18px;padding:20px;box-shadow:0 6px 20px rgba(6,51,45,.06)}
+h2{font-family:var(--display);color:var(--green-ink);font-size:26px;margin:0 0 4px;line-height:1.1}
+h3{font-family:var(--display);color:var(--green-ink);font-size:19px;margin:0 0 8px}
+.hint{color:var(--muted);margin:0 0 14px;font-weight:600}
+.grid2{display:grid;grid-template-columns:minmax(0,360px) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:900px){.grid2{grid-template-columns:1fr}}
+.box{border:2px solid var(--line);border-radius:16px;padding:16px;min-width:0}
+label.f{display:block;font-weight:800;font-size:13.5px;color:var(--green-ink);margin-bottom:10px}
+label.f input,label.f select,label.f textarea{display:block;width:100%;margin-top:4px;border:2px solid #CFE3DD;border-radius:12px;padding:9px 12px;font-weight:700;color:var(--ink);background:#fff}
+label.f textarea{min-height:64px;resize:vertical}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.row>label.f{flex:1;min-width:120px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:6px;border:2px solid var(--line);border-radius:999px;padding:5px 11px;font-weight:800;font-size:13px;color:var(--muted);background:#fff;user-select:none}
+.chip input{accent-color:var(--green);margin:0}
+.chip.on{border-color:var(--green);background:#E6F4F0;color:var(--green-ink)}
+.msg{min-height:22px;font-weight:800;font-size:14px;margin:8px 0 0}
+.msg.ok{color:var(--green)} .msg.bad{color:var(--red)}
+.tbl-wrap{overflow-x:auto;border:2px solid var(--line);border-radius:14px}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:14px}
+th{background:var(--green);color:#fff;text-align:left;padding:9px 10px;font-weight:800;white-space:nowrap;position:sticky;top:0}
+td{padding:8px 10px;border-top:1px solid var(--line);vertical-align:middle}
+tr:nth-child(even) td{background:#F7FBFA}
+td .sub{display:block;color:var(--muted);font-size:12.5px;font-weight:600}
+.pw{font-family:ui-monospace,Consolas,monospace;font-weight:700}
+.tag{display:inline-block;border-radius:999px;padding:2px 9px;font-size:12px;font-weight:800}
+.tag.open{background:#E3F6EA;color:#11683A}.tag.closed{background:#EEE;color:#555}.tag.live{background:#FFF2CC;color:#7A5200}
+.qlist{max-height:430px;overflow:auto;border:2px solid var(--line);border-radius:14px}
+.q{display:flex;gap:10px;padding:9px 12px;border-top:1px solid var(--line);align-items:flex-start}
+.q:first-child{border-top:0}
+.q input{margin-top:4px;accent-color:var(--green);width:18px;height:18px;flex:none}
+.q .qt{font-weight:800}
+.q .qm{font-size:12.5px;color:var(--muted);font-weight:600}
+.q .ans{color:var(--green);font-weight:800}
+.sel .q{align-items:center}
+.sel .q .n{flex:none;width:26px;height:26px;border-radius:8px;background:var(--green);color:#fff;display:grid;place-items:center;font-weight:800;font-size:13px}
+.sel .q .body{flex:1;min-width:0}
+.pinbig{font-family:var(--display);font-size:42px;letter-spacing:.14em;color:var(--red-bright);line-height:1}
+.card-test{border:2px solid var(--line);border-radius:16px;padding:14px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.card-test .t{flex:1;min-width:200px}
+.card-test .t b{font-family:var(--display);font-size:19px;color:var(--green-ink)}
+.stat{display:inline-flex;flex-direction:column;align-items:center;min-width:80px;background:var(--foam);border-radius:12px;padding:6px 10px}
+.stat b{font-family:var(--display);font-size:22px;color:var(--green-ink);line-height:1}
+.stat span{font-size:12px;font-weight:700;color:var(--muted)}
+.gate{position:fixed;inset:0;background:var(--green-deep);display:grid;place-items:center;z-index:50;color:#fff;font-weight:800;font-family:var(--display);font-size:22px;padding:16px;text-align:center}
+.modal{position:fixed;inset:0;background:rgba(6,51,45,.55);display:grid;place-items:center;z-index:40;padding:16px}
+.modal .in{background:#fff;border-radius:20px;padding:20px;width:min(1000px,100%);max-height:90vh;overflow:auto}
+.ok{color:#11683A;font-weight:800}.no{color:var(--red);font-weight:800}
+.small{font-size:13px;color:var(--muted);font-weight:600}
+</style>
+</head>
+<body>
+<div class="gate" id="gate">Checking your account…</div>
+
+<header class="top">
+  <a class="lg" href="index.html" aria-label="Back to the library"><img src="assets/logo.png" alt="Edulixa"></a>
+  <h1>Mental Math · Admin Panel</h1>
+  <span class="me" id="me"></span>
+  <a class="pill w" href="index.html">← Library</a>
+  <button class="pill r" id="logoutBtn" type="button">Log out</button>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button role="tab" aria-selected="true" data-tab="users">👥 Users</button>
+  <button role="tab" aria-selected="false" data-tab="tests">⏱️ Live tests</button>
+  <button role="tab" aria-selected="false" data-tab="results">📊 Results</button>
+</nav>
+
+<main>
+  <!-- USERS -->
+  <section class="panel" id="tab-users">
+    <div class="grid2">
+      <form class="box" id="userForm">
+        <h3>Add a user</h3>
+        <label class="f">Student name<input id="uName" required maxlength="80" placeholder="e.g. Omar Ali"></label>
+        <label class="f">Email<input id="uEmail" type="email" required placeholder="student@email.com"></label>
+        <div class="row" style="align-items:flex-end">
+          <label class="f">Password<input id="uPass" required minlength="6" class="pw"></label>
+          <button class="pill o sm" type="button" id="genPass" style="margin-bottom:12px">New password</button>
+        </div>
+        <p class="f" style="margin:0 0 6px;font-weight:800;font-size:13.5px;color:var(--green-ink)">Books and games</p>
+        <div class="chips" id="uBooks"></div>
+        <p class="small" style="margin:8px 0 12px">Each book comes with its game. The account works on 2 devices.</p>
+        <button class="pill g" id="uAdd" type="submit">Add user</button>
+        <p class="msg" id="uMsg" role="status"></p>
+      </form>
+      <div class="box">
+        <div class="row" style="justify-content:space-between;margin-bottom:10px">
+          <h3 style="margin:0">Users <span class="small" id="uCount"></span></h3>
+          <label class="f" style="margin:0;min-width:220px"><input id="uSearch" placeholder="Search name or email" style="margin:0"></label>
+        </div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Student</th><th>Password</th><th>Books & games</th><th>Devices</th><th></th></tr></thead>
+          <tbody id="uRows"><tr><td colspan="5">Loading…</td></tr></tbody>
+        </table></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LIVE TESTS -->
+  <section class="panel" id="tab-tests" hidden>
+    <div class="row" style="justify-content:space-between;margin-bottom:12px">
+      <div><h2>Live tests</h2><p class="hint" style="margin:0">Choose questions, start the test, then give the PIN to your students.</p></div>
+      <button class="pill g" id="newTestBtn" type="button">+ New live test</button>
+    </div>
+    <div id="testBuilder" class="box" hidden style="margin-bottom:18px">
+      <h3>New live test</h3>
+      <div class="row">
+        <label class="f" style="flex:2">Test title<input id="tTitle" maxlength="100" placeholder="e.g. Level 3 · Week 4 quiz"></label>
+        <label class="f">PIN code<input id="tPin" inputmode="numeric" maxlength="6" class="pw"></label>
+        <label class="f">Time limit (minutes)<input id="tTime" type="number" min="1" max="120" value="10"></label>
+      </div>
+      <div class="grid2" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr)">
+        <div>
+          <div class="row" style="margin-bottom:8px">
+            <label class="f" style="margin:0"><select id="bBook"><option value="">All books</option></select></label>
+            <label class="f" style="margin:0"><input id="bSearch" placeholder="Search questions" style="margin:0"></label>
+          </div>
+          <div class="qlist" id="bankList"></div>
+          <details class="box" style="margin-top:12px" id="customBox">
+            <summary style="font-weight:800;color:var(--green-ink);cursor:pointer">✍️ Write my own question</summary>
+            <div style="margin-top:10px">
+              <label class="f">Question<input id="cQ" maxlength="160" placeholder="e.g. 36 ÷ 4 = ?"></label>
+              <div class="row">
+                <label class="f">Answer A<input id="cA0"></label><label class="f">Answer B<input id="cA1"></label>
+              </div>
+              <div class="row">
+                <label class="f">Answer C<input id="cA2"></label><label class="f">Answer D<input id="cA3"></label>
+              </div>
+              <div class="row">
+                <label class="f">Right answer<select id="cRight"><option value="0">A</option><option value="1">B</option><option value="2">C</option><option value="3">D</option></select></label>
+                <label class="f">Book<select id="cBook"></select></label>
+                <label class="f">Page<input id="cPage" type="number" min="1" placeholder="optional"></label>
+              </div>
+              <label class="f">Topic<input id="cTopic" maxlength="40" placeholder="e.g. Division facts"></label>
+              <button class="pill y sm" type="button" id="cAdd">Add to my question bank</button>
+              <p class="msg" id="cMsg"></p>
+            </div>
+          </details>
+        </div>
+        <div class="sel">
+          <h3>Selected questions <span class="small" id="selCount">(0)</span></h3>
+          <div class="qlist" id="selList"><p class="small" style="padding:12px">Tick questions on the left to add them.</p></div>
+          <div class="row" style="margin-top:12px">
+            <button class="pill r" type="button" id="tStart">Start live test</button>
+            <button class="pill o" type="button" id="tCancel">Cancel</button>
+          </div>
+          <p class="msg" id="tMsg"></p>
+        </div>
+      </div>
+    </div>
+    <div id="testList"><p class="small">Loading…</p></div>
+  </section>
+
+  <!-- RESULTS -->
+  <section class="panel" id="tab-results" hidden>
+    <div class="row" style="justify-content:space-between;margin-bottom:12px">
+      <div><h2>All results</h2><p class="hint" style="margin:0">Every live test result, saved automatically. Download them as an Edulixa Excel sheet.</p></div>
+      <button class="pill g" id="xlsAll" type="button">⬇ Download all results (Excel)</button>
+    </div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Date</th><th>Test</th><th>Student</th><th>Score</th><th>%</th><th>Result</th></tr></thead>
+      <tbody id="rRows"><tr><td colspan="6">Loading…</td></tr></tbody>
+    </table></div>
+  </section>
+</main>
+
+<div class="modal" id="liveModal" hidden role="dialog" aria-modal="true" aria-labelledby="lvTitle">
+  <div class="in">
+    <div class="row" style="justify-content:space-between;align-items:flex-start">
+      <div><h2 id="lvTitle">Live test</h2><p class="small" id="lvSub"></p></div>
+      <div style="text-align:center"><span class="small">PIN</span><div class="pinbig" id="lvPin"></div></div>
+    </div>
+    <div class="row" style="margin:10px 0 14px" id="lvStats"></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Student</th><th>Answered</th><th>Correct</th><th>%</th><th>Status</th></tr></thead>
+      <tbody id="lvRows"></tbody>
+    </table></div>
+    <div class="row" style="margin-top:14px">
+      <button class="pill r" type="button" id="lvClose">End test & share scores</button>
+      <button class="pill g" type="button" id="lvXls">⬇ Excel for this test</button>
+      <button class="pill o" type="button" id="lvHide">Close window</button>
+    </div>
+  </div>
+</div>
+
+<script src="vendor/exceljs.min.js"></script>
+<script type="module">
+import { initializeApp } from './vendor/firebase/firebase-app.js';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, deleteUser, updatePassword, signOut as so, inMemoryPersistence, setPersistence } from './vendor/firebase/firebase-auth.js';
+import { collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, writeBatch, serverTimestamp, addDoc } from './vendor/firebase/firebase-firestore.js';
+import { db, currentProfile, logout, useEmulator } from './js/portal.js';
+import { firebaseConfig, BOOKS } from './js/config.js';
+import { BANK } from './js/bank.js';
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const bookName = id => { const b = BOOKS.find(x => x.id === id); return b ? `${b.level} ${b.name}` : id || '—'; };
+const fmtDate = t => { const d = t && t.toDate ? t.toDate() : (t ? new Date(t) : null); return d ? d.toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—'; };
+const PASS_PCT = 50;
+
+/* ---------- admin check ---------- */
+const me = await currentProfile();
+if (!me) { location.replace('index.html?next=admin.html'); throw new Error('not signed in'); }
+if (!me.admin) { document.getElementById('gate').textContent = 'This page is for administrators only.'; setTimeout(() => location.replace('index.html'), 1800); throw new Error('not admin'); }
+$('gate').hidden = true; $('me').textContent = me.email;
+$('logoutBtn').onclick = async () => { await logout(); location.replace('index.html'); };
+
+// A second, separate sign-in used only to create or delete student accounts,
+// so the administrator stays signed in.
+const helper = getAuth(initializeApp(firebaseConfig, 'account-helper')); useEmulator(helper);
+await setPersistence(helper, inMemoryPersistence).catch(() => {});
+
+/* ---------- tabs ---------- */
+document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.tabs button').forEach(x => x.setAttribute('aria-selected', String(x === b)));
+  ['users', 'tests', 'results'].forEach(t => $('tab-' + t).hidden = t !== b.dataset.tab);
+  if (b.dataset.tab === 'results') loadResults();
+});
+
+/* ---------- users ---------- */
+const genPw = () => { const a = 'abcdefghjkmnpqrstuvwxyz', d = '23456789'; let s = ''; for (let i = 0; i < 4; i++) s += a[Math.floor(Math.random() * a.length)]; s = s[0].toUpperCase() + s.slice(1); for (let i = 0; i < 4; i++) s += d[Math.floor(Math.random() * d.length)]; return s; };
+$('uPass').value = genPw(); $('genPass').onclick = () => $('uPass').value = genPw();
+function bookChips(el, selected, onChange) {
+  el.innerHTML = BOOKS.map(b => `<label class="chip ${selected.includes(b.id) ? 'on' : ''}"><input type="checkbox" value="${b.id}" ${selected.includes(b.id) ? 'checked' : ''}>${b.id} ${esc(b.name)}</label>`).join('');
+  el.querySelectorAll('input').forEach(i => i.onchange = () => { i.parentElement.classList.toggle('on', i.checked); onChange && onChange([...el.querySelectorAll('input:checked')].map(x => x.value)); });
+}
+bookChips($('uBooks'), []);
+let USERS = [], CREDS = {};
+async function loadUsers() {
+  const [us, cs] = await Promise.all([getDocs(collection(db, 'users')), getDocs(collection(db, 'creds'))]);
+  CREDS = {}; cs.forEach(d => CREDS[d.id] = d.data());
+  USERS = []; us.forEach(d => USERS.push({ uid: d.id, ...d.data() }));
+  USERS.sort((a, b) => (a.role === 'admin') - (b.role === 'admin') || String(a.name).localeCompare(b.name));
+  renderUsers();
+}
+function renderUsers() {
+  const q = $('uSearch').value.trim().toLowerCase();
+  const list = USERS.filter(u => !q || (u.name + ' ' + u.email).toLowerCase().includes(q));
+  $('uCount').textContent = `(${USERS.filter(u => u.role !== 'admin').length} students)`;
+  $('uRows').innerHTML = list.length ? list.map(u => {
+    const admin = u.role === 'admin', pw = CREDS[u.uid]?.password;
+    return `<tr data-uid="${u.uid}">
+      <td><b>${esc(u.name)}</b>${admin ? ' <span class="tag live">Admin</span>' : ''}<span class="sub">${esc(u.email)}</span></td>
+      <td>${admin ? '—' : `<span class="pw" data-pw="${esc(pw || '')}">••••••</span> <button class="pill o sm" data-act="showpw" type="button">Show</button> <button class="pill o sm" data-act="newpw" type="button">Change</button>`}</td>
+      <td>${admin ? 'All books' : `<div class="chips" data-books></div>`}</td>
+      <td>${admin ? 'No limit' : `${(u.devices || []).length} of 2${(u.devices || []).length ? `<span class="sub">${(u.devices || []).map(d => esc(d.label)).join(', ')}</span>` : ''}${(u.devices || []).length ? ` <button class="pill o sm" data-act="reset" type="button">Reset</button>` : ''}`}</td>
+      <td>${admin ? '' : `<button class="pill r sm" data-act="del" type="button">Delete</button>`}</td></tr>`;
+  }).join('') : '<tr><td colspan="5">No users yet.</td></tr>';
+  $('uRows').querySelectorAll('tr[data-uid]').forEach(tr => {
+    const u = USERS.find(x => x.uid === tr.dataset.uid); const bx = tr.querySelector('[data-books]');
+    if (bx) bookChips(bx, u.books || [], async books => { await updateDoc(doc(db, 'users', u.uid), { books }); u.books = books; });
+    tr.querySelectorAll('[data-act]').forEach(b => b.onclick = () => userAction(b.dataset.act, u, tr, b));
+  });
+}
+$('uSearch').oninput = renderUsers;
+async function userAction(act, u, tr, btn) {
+  if (act === 'showpw') { const s = tr.querySelector('.pw'); const hidden = s.textContent === '••••••'; s.textContent = hidden ? (s.dataset.pw || 'not saved') : '••••••'; btn.textContent = hidden ? 'Hide' : 'Show'; }
+  if (act === 'reset') { if (!confirm(`Reset the devices for ${u.name}? They can then sign in on 2 new devices.`)) return; await updateDoc(doc(db, 'users', u.uid), { devices: [] }); u.devices = []; renderUsers(); }
+  if (act === 'newpw') {
+    const old = CREDS[u.uid]?.password; const np = prompt(`New password for ${u.name} (at least 6 characters):`, genPw()); if (!np) return;
+    if (np.length < 6) return alert('The password needs at least 6 characters.');
+    try { const c = await signInWithEmailAndPassword(helper, u.email, old); await updatePassword(c.user, np); await so(helper); await setDoc(doc(db, 'creds', u.uid), { password: np, email: u.email }); CREDS[u.uid] = { password: np }; renderUsers(); alert(`New password for ${u.name}: ${np}`); }
+    catch (e) { alert('Could not change the password: ' + e.message); }
+  }
+  if (act === 'del') {
+    if (!confirm(`Delete the account of ${u.name} (${u.email})?\nThey will lose access to all books, games and tests. Their old test results stay in the results sheet.`)) return;
+    btn.disabled = true;
+    try { const c = await signInWithEmailAndPassword(helper, u.email, CREDS[u.uid]?.password || ''); await deleteUser(c.user); } catch (e) { console.warn('sign-in account not removed', e); }
+    try { await so(helper); } catch (e) {}
+    await deleteDoc(doc(db, 'users', u.uid)); await deleteDoc(doc(db, 'creds', u.uid)).catch(() => {});
+    USERS = USERS.filter(x => x.uid !== u.uid); renderUsers();
+  }
+}
+$('userForm').onsubmit = async e => {
+  e.preventDefault(); const m = $('uMsg'); m.className = 'msg'; m.textContent = 'Adding…'; $('uAdd').disabled = true;
+  const name = $('uName').value.trim(), email = $('uEmail').value.trim().toLowerCase(), password = $('uPass').value.trim();
+  const books = [...$('uBooks').querySelectorAll('input:checked')].map(i => i.value);
+  try {
+    const c = await createUserWithEmailAndPassword(helper, email, password); const uid = c.user.uid; await so(helper);
+    await setDoc(doc(db, 'users', uid), { name, email, role: 'student', books, devices: [], createdAt: serverTimestamp() });
+    await setDoc(doc(db, 'creds', uid), { password, email });
+    m.className = 'msg ok'; m.textContent = `Added. Give ${name} this email and password: ${email} · ${password}`;
+    $('uName').value = ''; $('uEmail').value = ''; $('uPass').value = genPw(); bookChips($('uBooks'), []);
+    loadUsers();
+  } catch (err) {
+    m.className = 'msg bad';
+    m.textContent = err.code === 'auth/email-already-in-use' ? 'This email already has an account.' : err.code === 'auth/weak-password' ? 'The password needs at least 6 characters.' : err.code === 'auth/invalid-email' ? 'Please type a valid email.' : 'Could not add the user: ' + err.message;
+  }
+  $('uAdd').disabled = false;
+};
+loadUsers();
+
+/* ---------- question bank + test builder ---------- */
+let CUSTOM = [], SELECTED = [];
+async function loadCustom() { const s = await getDocs(collection(db, 'questions')); CUSTOM = []; s.forEach(d => CUSTOM.push({ id: 'C-' + d.id, custom: true, ...d.data() })); renderBank(); }
+const allQ = () => [...CUSTOM, ...BANK];
+$('bBook').innerHTML += BOOKS.map(b => `<option value="${b.id}">${b.id} ${esc(b.name)}</option>`).join('') + '<option value="custom">My own questions</option>';
+$('cBook').innerHTML = BOOKS.map(b => `<option value="${b.id}">${b.id} ${esc(b.name)}</option>`).join('');
+function renderBank() {
+  const bk = $('bBook').value, q = $('bSearch').value.trim().toLowerCase();
+  const list = allQ().filter(x => (!bk || (bk === 'custom' ? x.custom : x.book === bk)) && (!q || (x.q + ' ' + x.topic).toLowerCase().includes(q)));
+  $('bankList').innerHTML = list.length ? list.map(x => `<label class="q"><input type="checkbox" value="${x.id}" ${SELECTED.some(s => s.id === x.id) ? 'checked' : ''}><span><span class="qt">${esc(x.q)}</span><br><span class="qm">${x.custom ? '✍️ ' : ''}${esc(x.book)} · ${esc(x.topic || '')}${x.page ? ' · page ' + x.page : ''} · <span class="ans">${esc(x.options[x.answer])}</span></span></span></label>`).join('') : '<p class="small" style="padding:12px">No questions match.</p>';
+  $('bankList').querySelectorAll('input').forEach(i => i.onchange = () => { const x = allQ().find(y => y.id === i.value); if (i.checked) SELECTED.push(x); else SELECTED = SELECTED.filter(s => s.id !== x.id); renderSel(); });
+}
+function renderSel() {
+  $('selCount').textContent = `(${SELECTED.length})`;
+  $('selList').innerHTML = SELECTED.length ? SELECTED.map((x, i) => `<div class="q"><span class="n">${i + 1}</span><span class="body"><span class="qt">${esc(x.q)}</span><br><span class="qm">${esc(x.book)}${x.page ? ' · page ' + x.page : ''} · <span class="ans">${esc(x.options[x.answer])}</span></span></span>
+    <button class="pill o sm" data-m="-1" data-i="${i}" type="button" aria-label="Move up">↑</button><button class="pill o sm" data-m="1" data-i="${i}" type="button" aria-label="Move down">↓</button><button class="pill o sm" data-x="${i}" type="button" aria-label="Remove">✕</button></div>`).join('') : '<p class="small" style="padding:12px">Tick questions on the left to add them.</p>';
+  $('selList').querySelectorAll('[data-m]').forEach(b => b.onclick = () => { const i = +b.dataset.i, j = i + +b.dataset.m; if (j < 0 || j >= SELECTED.length) return; [SELECTED[i], SELECTED[j]] = [SELECTED[j], SELECTED[i]]; renderSel(); });
+  $('selList').querySelectorAll('[data-x]').forEach(b => b.onclick = () => { SELECTED.splice(+b.dataset.x, 1); renderSel(); renderBank(); });
+}
+$('bBook').onchange = renderBank; $('bSearch').oninput = renderBank;
+$('cAdd').onclick = async () => {
+  const q = $('cQ').value.trim(), options = [0, 1, 2, 3].map(i => $('cA' + i).value.trim()), m = $('cMsg');
+  if (!q || options.some(o => !o)) { m.className = 'msg bad'; m.textContent = 'Please write the question and all four answers.'; return; }
+  if (new Set(options).size < 4) { m.className = 'msg bad'; m.textContent = 'The four answers must all be different.'; return; }
+  const data = { q, options, answer: +$('cRight').value, book: $('cBook').value, topic: $('cTopic').value.trim() || 'My question', page: +$('cPage').value || null, createdAt: serverTimestamp() };
+  const ref = await addDoc(collection(db, 'questions'), data);
+  const x = { id: 'C-' + ref.id, custom: true, ...data }; CUSTOM.unshift(x); SELECTED.push(x);
+  ['cQ', 'cA0', 'cA1', 'cA2', 'cA3', 'cPage', 'cTopic'].forEach(i => $(i).value = '');
+  m.className = 'msg ok'; m.textContent = 'Saved to your question bank and added to this test.'; renderBank(); renderSel();
+};
+const newPin = () => String(Math.floor(100000 + Math.random() * 900000));
+$('newTestBtn').onclick = () => { $('testBuilder').hidden = false; $('tPin').value = newPin(); $('tTitle').focus(); SELECTED = []; renderSel(); renderBank(); };
+$('tCancel').onclick = () => { $('testBuilder').hidden = true; };
+$('tStart').onclick = async () => {
+  const m = $('tMsg'), title = $('tTitle').value.trim() || 'Live test', pin = $('tPin').value.trim(), mins = Math.max(1, Math.min(120, +$('tTime').value || 10));
+  if (!/^\d{4,6}$/.test(pin)) { m.className = 'msg bad'; m.textContent = 'The PIN must be 4 to 6 digits.'; return; }
+  if (!SELECTED.length) { m.className = 'msg bad'; m.textContent = 'Please choose at least one question.'; return; }
+  if ((await getDoc(doc(db, 'pins', pin))).exists()) { m.className = 'msg bad'; m.textContent = 'This PIN is used by a running test. Choose another PIN.'; return; }
+  $('tStart').disabled = true;
+  const tref = doc(collection(db, 'tests'));
+  const b = writeBatch(db);
+  b.set(tref, { title, pin, status: 'open', timeLimit: mins, count: SELECTED.length, createdAt: serverTimestamp(), createdBy: me.email,
+    questions: SELECTED.map(x => ({ q: x.q, options: x.options, topic: x.topic || '', book: x.book || '', page: x.page || null, src: x.id })) });
+  b.set(doc(db, 'testKeys', tref.id), { answers: SELECTED.map(x => x.answer) });
+  b.set(doc(db, 'pins', pin), { testId: tref.id });
+  await b.commit();
+  $('tStart').disabled = false; $('testBuilder').hidden = true; m.textContent = '';
+  openLive(tref.id);
+};
+loadCustom();
+
+/* ---------- running and past tests ---------- */
+let TESTS = [];
+onSnapshot(query(collection(db, 'tests'), orderBy('createdAt', 'desc')), s => {
+  TESTS = []; s.forEach(d => TESTS.push({ id: d.id, ...d.data() }));
+  $('testList').innerHTML = TESTS.length ? TESTS.map(t => `<div class="card-test">
+    <div class="t"><b>${esc(t.title)}</b> <span class="tag ${t.status === 'open' ? 'live' : 'closed'}">${t.status === 'open' ? '● Live' : 'Ended'}</span><br><span class="small">${t.count} questions · ${t.timeLimit} min · ${fmtDate(t.createdAt)}</span></div>
+    ${t.status === 'open' ? `<div style="text-align:center"><span class="small">PIN</span><div class="pinbig" style="font-size:30px">${esc(t.pin)}</div></div>` : ''}
+    <button class="pill g sm" data-open="${t.id}" type="button">${t.status === 'open' ? 'Live view' : 'View results'}</button>
+    <button class="pill o sm" data-xls="${t.id}" type="button">⬇ Excel</button>
+    <button class="pill o sm" data-del="${t.id}" type="button">Delete</button></div>`).join('') : '<p class="small">No live tests yet. Press “New live test” to make one.</p>';
+  $('testList').querySelectorAll('[data-open]').forEach(b => b.onclick = () => openLive(b.dataset.open));
+  $('testList').querySelectorAll('[data-xls]').forEach(b => b.onclick = () => exportTests([b.dataset.xls]));
+  $('testList').querySelectorAll('[data-del]').forEach(b => b.onclick = () => deleteTest(b.dataset.del));
+});
+async function testData(id) {
+  const [t, k, r] = await Promise.all([getDoc(doc(db, 'tests', id)), getDoc(doc(db, 'testKeys', id)), getDocs(collection(db, 'tests', id, 'results'))]);
+  const res = []; r.forEach(d => res.push({ uid: d.id, ...d.data() }));
+  return { test: { id, ...t.data() }, key: k.exists() ? k.data().answers : [], results: res };
+}
+const scoreOf = (r, key) => (r.answers || []).reduce((n, a, i) => n + (a === key[i] ? 1 : 0), 0);
+let liveStop = null, liveId = null, liveKey = [];
+async function openLive(id) {
+  liveId = id; const { test, key } = await testData(id); liveKey = key;
+  $('lvTitle').textContent = test.title; $('lvPin').textContent = test.status === 'open' ? test.pin : '—';
+  $('lvSub').textContent = `${test.count} questions · ${test.timeLimit} min · ${test.status === 'open' ? 'Students: open the library, press “Live test” and type the PIN.' : 'This test has ended.'}`;
+  $('lvClose').hidden = test.status !== 'open';
+  $('liveModal').hidden = false;
+  if (liveStop) liveStop();
+  liveStop = onSnapshot(collection(db, 'tests', id, 'results'), s => {
+    const rows = []; s.forEach(d => rows.push({ uid: d.id, ...d.data() }));
+    rows.sort((a, b) => scoreOf(b, liveKey) - scoreOf(a, liveKey));
+    const done = rows.filter(r => r.finished).length;
+    $('lvStats').innerHTML = `<span class="stat"><b>${rows.length}</b><span>joined</span></span><span class="stat"><b>${done}</b><span>finished</span></span><span class="stat"><b>${rows.length ? Math.round(rows.reduce((n, r) => n + scoreOf(r, liveKey), 0) / rows.length / test.count * 100) : 0}%</b><span>class average</span></span>`;
+    $('lvRows').innerHTML = rows.length ? rows.map(r => { const sc = scoreOf(r, liveKey), n = (r.answers || []).filter(a => a !== null && a !== undefined && a !== -1).length, pct = Math.round(sc / test.count * 100);
+      return `<tr><td><b>${esc(r.name)}</b><span class="sub">${esc(r.email)}</span></td><td>${n} / ${test.count}</td><td>${sc}</td><td>${pct}%</td><td>${r.finished ? '<span class="ok">✓ Finished</span>' : '<span class="tag live">Answering…</span>'}</td></tr>`; }).join('') : '<tr><td colspan="5">Waiting for students to join…</td></tr>';
+  });
+}
+$('lvHide').onclick = () => { $('liveModal').hidden = true; if (liveStop) liveStop(); liveStop = null; };
+$('lvXls').onclick = () => exportTests([liveId]);
+$('lvClose').onclick = async () => {
+  if (!confirm('End this test now? Students who are still answering will be stopped, and everyone sees their score.')) return;
+  const { test, key, results } = await testData(liveId);
+  const b = writeBatch(db);
+  results.forEach(r => b.update(doc(db, 'tests', liveId, 'results', r.uid), { score: scoreOf(r, key), total: test.count, finished: true, released: true }));
+  b.update(doc(db, 'tests', liveId), { status: 'closed', closedAt: serverTimestamp() });
+  b.delete(doc(db, 'pins', test.pin));
+  await b.commit(); $('lvClose').hidden = true; $('lvPin').textContent = '—';
+};
+async function deleteTest(id) {
+  const t = TESTS.find(x => x.id === id); if (!confirm(`Delete “${t.title}” and all its results? Download the Excel sheet first if you need it.`)) return;
+  const { results } = await testData(id); const b = writeBatch(db);
+  results.forEach(r => b.delete(doc(db, 'tests', id, 'results', r.uid)));
+  b.delete(doc(db, 'testKeys', id)); if (t.status === 'open') b.delete(doc(db, 'pins', t.pin)); b.delete(doc(db, 'tests', id));
+  await b.commit();
+}
+
+/* ---------- results tab ---------- */
+async function loadResults() {
+  $('rRows').innerHTML = '<tr><td colspan="6">Loading…</td></tr>';
+  const all = await Promise.all(TESTS.map(t => testData(t.id)));
+  const rows = []; all.forEach(({ test, key, results }) => results.forEach(r => { const sc = scoreOf(r, key); rows.push({ test, r, sc, pct: Math.round(sc / test.count * 100) }); }));
+  $('rRows').innerHTML = rows.length ? rows.map(x => `<tr><td>${fmtDate(x.r.submittedAt || x.r.startedAt)}</td><td>${esc(x.test.title)}</td><td><b>${esc(x.r.name)}</b><span class="sub">${esc(x.r.email)}</span></td><td>${x.sc} / ${x.test.count}</td><td>${x.pct}%</td><td>${x.pct >= PASS_PCT ? '<span class="ok">Passed</span>' : '<span class="no">Needs practice</span>'}</td></tr>`).join('') : '<tr><td colspan="6">No results yet.</td></tr>';
+}
+$('xlsAll').onclick = () => exportTests(TESTS.map(t => t.id));
+
+/* ---------- Edulixa-branded Excel ---------- */
+let LOGO = null;
+async function logoB64() { if (LOGO) return LOGO; const b = await (await fetch('assets/logo.png')).blob(); LOGO = await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(b); }); return LOGO; }
+const C = { teal: 'FF0F695D', ink: 'FF06332D', red: 'FFEE3A23', sun: 'FFFFC93C', foam: 'FFF4FBF8', line: 'FFDCEDE8', okBg: 'FFE3F6EA', okFg: 'FF11683A', noBg: 'FFFDECE8', noFg: 'FFB3261A' };
+const colLetter = n => { let s = ''; while (n > 0) { const m = (n - 1) % 26; s = String.fromCharCode(65 + m) + s; n = Math.floor((n - 1) / 26); } return s; };
+function brand(ws, wb, logoId, title, sub, cols) {
+  ws.pageSetup = { orientation: 'landscape', fitToPage: true, fitToWidth: 1, fitToHeight: 0, margins: { left: .4, right: .4, top: .5, bottom: .5, header: .2, footer: .2 } };
+  ws.headerFooter = { oddFooter: '&L&8Edulixa · Mental Math&R&8Page &P of &N' };
+  ws.properties.defaultRowHeight = 20; ws.views = [{ state: 'frozen', ySplit: 5, showGridLines: false }];
+  ws.columns = cols.map(c => ({ width: c.w }));
+  const last = colLetter(cols.length);
+  ws.mergeCells(`A1:${last}1`); ws.mergeCells(`A2:${last}2`); ws.mergeCells(`A3:${last}3`);
+  ws.getRow(1).height = 46; ws.getRow(2).height = 26; ws.getRow(3).height = 18;
+  for (let r = 1; r <= 3; r++) ws.getRow(r).eachCell({ includeEmpty: true }, c => c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFFFFF' } });
+  ws.addImage(logoId, { tl: { col: 0.15, row: 0.15 }, ext: { width: 150, height: 52 } });
+  const t = ws.getCell('A2'); t.value = title; t.font = { name: 'Arial', size: 16, bold: true, color: { argb: C.ink } }; t.alignment = { horizontal: 'left', vertical: 'middle', indent: 1 };
+  const s = ws.getCell('A3'); s.value = sub; s.font = { name: 'Arial', size: 10, color: { argb: 'FF4F6660' } }; s.alignment = { indent: 1 };
+  const bar = ws.getRow(4); bar.height = 6; for (let i = 1; i <= cols.length; i++) bar.getCell(i).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: i % 3 === 0 ? C.sun : i % 3 === 1 ? C.teal : C.red } };
+  const h = ws.getRow(5); h.height = 26; cols.forEach((c, i) => { const cell = h.getCell(i + 1); cell.value = c.h; cell.font = { name: 'Arial', bold: true, color: { argb: 'FFFFFFFF' }, size: 11 }; cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C.teal } }; cell.alignment = { vertical: 'middle', horizontal: c.center ? 'center' : 'left', wrapText: true }; cell.border = { bottom: { style: 'medium', color: { argb: C.sun } } }; });
+  ws.autoFilter = { from: 'A5', to: `${last}5` };
+}
+function addRow(ws, vals, cols, i) {
+  const row = ws.addRow(vals); row.height = 20;
+  row.eachCell({ includeEmpty: true }, (c, k) => { c.font = { name: 'Arial', size: 10.5, color: { argb: 'FF10251F' } }; c.alignment = { vertical: 'middle', horizontal: cols[k - 1]?.center ? 'center' : 'left', wrapText: !!cols[k - 1]?.wrap }; c.border = { bottom: { style: 'thin', color: { argb: C.line } } }; if (i % 2) c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C.foam } }; });
+  return row;
+}
+function mark(c, good) { c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: good ? C.okBg : C.noBg } }; c.font = { name: 'Arial', size: 10.5, bold: true, color: { argb: good ? C.okFg : C.noFg } }; }
+async function exportTests(ids) {
+  if (!ids.length) return alert('There are no tests yet.');
+  const data = await Promise.all(ids.map(testData));
+  const wb = new ExcelJS.Workbook(); wb.creator = 'Edulixa Mental Math'; wb.created = new Date();
+  const logoId = wb.addImage({ base64: await logoB64(), extension: 'png' });
+  const today = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+  // Summary sheet
+  const cols = [{ h: 'Date', w: 20 }, { h: 'Test', w: 30, wrap: true }, { h: 'PIN', w: 9, center: true }, { h: 'Student', w: 24 }, { h: 'Email', w: 30 }, { h: 'Score', w: 9, center: true }, { h: 'Out of', w: 9, center: true }, { h: '%', w: 8, center: true }, { h: 'Result', w: 16, center: true }, { h: 'Finished', w: 10, center: true }];
+  const ws = wb.addWorksheet('All results', { properties: { tabColor: { argb: C.teal } } });
+  brand(ws, wb, logoId, 'Mental Math · Live test results', `Edulixa · Downloaded ${today} · ${data.length} test(s)`, cols);
+  let i = 0;
+  data.forEach(({ test, key, results }) => results.forEach(r => {
+    const sc = scoreOf(r, key), pct = test.count ? Math.round(sc / test.count * 100) : 0;
+    const row = addRow(ws, [fmtDate(r.submittedAt || r.startedAt), test.title, test.pin, r.name, r.email, sc, test.count, pct / 100, pct >= PASS_PCT ? 'Passed' : 'Needs practice', r.finished ? 'Yes' : 'No'], cols, i++);
+    row.getCell(8).numFmt = '0%'; mark(row.getCell(9), pct >= PASS_PCT);
+  }));
+  if (!i) addRow(ws, ['No results yet'], cols, 0);
+  // One sheet per test, with every answer
+  data.forEach(({ test, key, results }, n) => {
+    const qc = test.questions.map((q, k) => ({ h: `Q${k + 1}\n${q.q}`, w: 16, center: true, wrap: true }));
+    const cs = [{ h: 'Student', w: 24 }, { h: 'Email', w: 28 }, ...qc, { h: 'Score', w: 9, center: true }, { h: '%', w: 8, center: true }];
+    const name = (`${n + 1} ${test.title}`).replace(/[\\/?*[\]:]/g, ' ').slice(0, 31);
+    const s = wb.addWorksheet(name, { properties: { tabColor: { argb: n % 2 ? C.red : C.sun } } });
+    brand(s, wb, logoId, test.title, `PIN ${test.pin} · ${test.count} questions · ${test.timeLimit} min · ${fmtDate(test.createdAt)} · ✓ right, ✗ wrong (chosen answer shown)`, cs);
+    s.getRow(5).height = 54;
+    results.sort((a, b) => scoreOf(b, key) - scoreOf(a, key)).forEach((r, k) => {
+      const sc = scoreOf(r, key);
+      const ans = test.questions.map((q, j) => { const a = (r.answers || [])[j]; return a === undefined || a === null || a === -1 ? '—' : (a === key[j] ? '✓ ' : '✗ ') + q.options[a]; });
+      const row = addRow(s, [r.name, r.email, ...ans, sc, test.count ? sc / test.count : 0], cs, k);
+      test.questions.forEach((q, j) => { const a = (r.answers || [])[j]; if (a !== undefined && a !== null && a !== -1) mark(row.getCell(3 + j), a === key[j]); });
+      row.getCell(cs.length).numFmt = '0%';
+    });
+    const keyRow = s.addRow(['Right answers', '', ...test.questions.map((q, j) => q.options[key[j]]), '', '']);
+    keyRow.eachCell(c => { c.font = { name: 'Arial', bold: true, color: { argb: 'FFFFFFFF' } }; c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C.ink } }; c.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true }; });
+    keyRow.getCell(1).alignment = { horizontal: 'left' };
+  });
+  const buf = await wb.xlsx.writeBuffer();
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
+  a.download = `Edulixa Mental Math Results ${new Date().toISOString().slice(0, 10)}.xlsx`; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+}
+</script>
+</body>
+</html>

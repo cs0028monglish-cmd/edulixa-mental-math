@@ -1,0 +1,61 @@
+rules_version = '2';
+// Edulixa Mental Math portal — who may read and write what.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    // Keep this list the same as ADMIN_EMAILS in js/config.js
+    function isAdmin() {
+      return signedIn() && request.auth.token.email != null &&
+        request.auth.token.email.lower() in ['abeer.wafaa@monglish.uk', 'soha.mohamed@monglish.uk'];
+    }
+
+    // Student profiles: name, email, books, devices
+    match /users/{uid} {
+      allow read: if isAdmin() || (signedIn() && request.auth.uid == uid);
+      allow create, delete: if isAdmin() ||
+        (signedIn() && request.auth.uid == uid && request.resource.data.role == 'admin' && isAdmin());
+      // A student may only add this device (never remove one, never more than 2) and update lastLogin
+      allow update: if isAdmin() || (signedIn() && request.auth.uid == uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['devices', 'lastLogin'])
+        && request.resource.data.devices.size() <= 2
+        && request.resource.data.devices.size() >= resource.data.get('devices', []).size()
+        && request.resource.data.devices.hasAll(resource.data.get('devices', [])));
+    }
+
+    // Passwords given by the administrator (only the administrator can see them)
+    match /creds/{uid} { allow read, write: if isAdmin(); }
+
+    // The administrator's own questions
+    match /questions/{id} { allow read, write: if isAdmin(); }
+
+    // PIN -> test
+    match /pins/{pin} {
+      allow get: if signedIn();
+      allow list, write: if isAdmin();
+    }
+
+    // Tests: students can read the questions (the right answers are kept in testKeys)
+    match /tests/{tid} {
+      allow get: if signedIn();
+      allow list, write: if isAdmin();
+
+      match /results/{uid} {
+        allow read: if isAdmin() || (signedIn() && request.auth.uid == uid);
+        allow delete: if isAdmin();
+        allow create: if signedIn() && request.auth.uid == uid
+          && get(/databases/$(database)/documents/tests/$(tid)).data.status == 'open'
+          && request.resource.data.keys().hasOnly(['uid', 'email', 'name', 'answers', 'current', 'startedMs', 'startedAt', 'finished'])
+          && request.resource.data.uid == uid && request.resource.data.finished == false;
+        allow update: if isAdmin() || (signedIn() && request.auth.uid == uid
+          && resource.data.finished == false
+          && get(/databases/$(database)/documents/tests/$(tid)).data.status == 'open'
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['answers', 'current', 'finished', 'submittedAt'])
+          && request.resource.data.answers.size() == resource.data.answers.size());
+      }
+    }
+
+    // Right answers: administrator only
+    match /testKeys/{tid} { allow read, write: if isAdmin(); }
+  }
+}

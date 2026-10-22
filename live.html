@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Edulixa Live Test</title>
+<link rel="icon" href="assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap">
+<style>
+:root{--green:#0F695D;--green-deep:#0A4A42;--green-ink:#06332D;--red:#D7311C;--red-bright:#EE3A23;--sun:#FFC93C;--foam:#F4FBF8;--line:#DCEDE8;--ink:#10251F;--muted:#4F6660;
+ --display:"Baloo 2","Trebuchet MS",system-ui,sans-serif;--body:"Nunito","Segoe UI",system-ui,sans-serif;color-scheme:light}
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{margin:0;background:radial-gradient(1000px 600px at 50% 0%,#138073,var(--green-deep) 70%);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;min-height:100vh}
+button,input{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--sun);outline-offset:3px;border-radius:10px}
+[hidden]{display:none!important}
+.top{display:flex;align-items:center;gap:10px;justify-content:space-between;padding:14px max(16px,env(safe-area-inset-left));flex-wrap:wrap}
+.lg{background:#fff;border-radius:999px;padding:6px 14px;display:flex}.lg img{height:30px}
+.pill{border:0;border-radius:999px;padding:9px 16px;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;background:#fff;color:var(--green-ink)}
+.timer{display:inline-flex;flex-direction:column;align-items:center;line-height:1;background:var(--green-ink);color:#fff;border-radius:16px;padding:6px 16px 7px;border:3px solid #fff}
+.timer small{font-size:10px;font-weight:800;letter-spacing:.1em;color:var(--sun)}
+.timer b{font-family:ui-monospace,Consolas,monospace;font-size:26px}
+.timer.hurry{background:#B3261A}
+main{max-width:760px;margin:0 auto;padding:10px max(16px,env(safe-area-inset-left)) 40px}
+.card{background:#fff;border-radius:26px;padding:24px;box-shadow:0 24px 50px rgba(0,0,0,.3)}
+.hello{display:flex;gap:16px;align-items:flex-end}
+.hello img{height:170px;flex:none;filter:drop-shadow(0 10px 10px rgba(0,0,0,.2))}
+h1{font-family:var(--display);color:var(--green-ink);font-size:34px;line-height:1;margin:0 0 6px}
+p.lede{margin:0 0 16px;color:var(--muted);font-weight:700}
+.pin{display:block;width:100%;text-align:center;font-family:var(--display);font-size:44px;letter-spacing:.3em;border:3px solid #CFE3DD;border-radius:18px;padding:8px;color:var(--green-ink)}
+.pin:focus{border-color:var(--green);outline:none}
+.go{width:100%;margin-top:14px;border:0;background:var(--red);color:#fff;border-radius:999px;padding:14px;font-family:var(--display);font-weight:800;font-size:21px;box-shadow:0 6px 0 #8E1D0F}
+.go:active{transform:translateY(3px);box-shadow:0 2px 0 #8E1D0F}
+.go:disabled{opacity:.6}
+.err{min-height:24px;color:var(--red);font-weight:800;margin:10px 0 0;text-align:center}
+.qhead{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:6px;flex-wrap:wrap}
+.tag{background:#E6F4F0;color:var(--green-ink);font-weight:800;font-size:13px;border-radius:999px;padding:4px 12px}
+.qnum{font-weight:800;color:var(--muted);font-size:14px}
+.qtext{font-family:var(--display);font-size:clamp(30px,6vw,44px);color:var(--green-ink);text-align:center;margin:10px 0 16px;line-height:1.1}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.opt{display:flex;align-items:center;gap:12px;border:3px solid var(--line);background:#F7FBFA;border-radius:18px;padding:14px;font-family:var(--display);font-weight:800;font-size:24px;color:var(--green-ink);text-align:left;min-height:68px}
+.opt .k{flex:none;width:34px;height:34px;border-radius:10px;background:var(--green);color:#fff;display:grid;place-items:center;font-size:16px}
+.opt[aria-pressed="true"]{border-color:var(--sun);background:#FFF8E1;box-shadow:0 0 0 3px rgba(255,201,60,.35)}
+.nav{display:flex;justify-content:space-between;gap:10px;margin-top:18px;align-items:center}
+.nav button{border:0;border-radius:999px;padding:11px 20px;font-weight:800}
+.prev{background:#fff;border:2px solid var(--line)!important;color:var(--green-ink)}
+.next{background:var(--green);color:#fff}
+.submit{background:var(--red);color:#fff}
+.dots{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:16px}
+.dots button{width:30px;height:30px;border-radius:9px;border:2px solid var(--line);background:#fff;font-weight:800;font-size:13px;color:var(--muted);padding:0}
+.dots button.done{background:#E6F4F0;border-color:var(--green);color:var(--green-ink)}
+.dots button.here{border-color:var(--sun);box-shadow:0 0 0 2px var(--sun)}
+.done-box{text-align:center}
+.big{font-family:var(--display);font-size:64px;color:var(--green-ink);line-height:1}
+.badge{display:inline-block;font-family:var(--display);font-weight:800;font-size:24px;color:var(--red-bright)}
+@media (max-width:560px){.opts{grid-template-columns:1fr}.hello img{height:120px}}
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="lg" href="index.html" aria-label="Back to the library"><img src="assets/logo.png" alt="Edulixa"></a>
+  <div class="timer" id="timer" hidden><small>TIME LEFT</small><b id="tNum">00:00</b></div>
+  <a class="pill" href="index.html">← Library</a>
+</header>
+<main>
+  <section class="card" id="vPin" hidden>
+    <div class="hello">
+      <img src="assets/hero_char.webp" alt="" aria-hidden="true">
+      <div><h1>Live test</h1><p class="lede" id="hi">Type the PIN from your teacher.</p></div>
+    </div>
+    <form id="pinForm">
+      <input class="pin" id="pin" inputmode="numeric" autocomplete="off" maxlength="6" aria-label="PIN code" placeholder="••••••">
+      <button class="go" id="join" type="submit">Join the test</button>
+      <p class="err" id="pErr" role="alert"></p>
+    </form>
+  </section>
+
+  <section class="card" id="vQ" hidden>
+    <div class="qhead"><span class="tag" id="qTopic"></span><span class="qnum" id="qNum"></span></div>
+    <div class="qtext" id="qText"></div>
+    <div class="opts" id="opts"></div>
+    <div class="nav">
+      <button class="prev" id="prev" type="button">← Back</button>
+      <button class="next" id="next" type="button">Next →</button>
+      <button class="submit" id="submit" type="button" hidden>Send my answers ✓</button>
+    </div>
+    <div class="dots" id="dots"></div>
+  </section>
+
+  <section class="card done-box" id="vDone" hidden>
+    <img src="assets/hero_char.webp" alt="" aria-hidden="true" style="height:150px">
+    <h1 id="dTitle">Answers sent!</h1>
+    <p class="lede" id="dText">Your teacher will share your score when the test ends. Keep this page open.</p>
+    <div id="dScore" hidden><div class="big" id="dBig"></div><div class="badge" id="dBadge"></div></div>
+    <p><a class="pill" style="border:2px solid var(--line)" href="index.html">← Back to the library</a></p>
+  </section>
+</main>
+
+<script type="module">
+import { doc, getDoc, setDoc, updateDoc, onSnapshot, serverTimestamp } from './vendor/firebase/firebase-firestore.js';
+import { db, currentProfile } from './js/portal.js';
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const show = v => ['vPin', 'vQ', 'vDone'].forEach(x => $(x).hidden = x !== v);
+
+const me = await currentProfile();
+if (!me) { location.replace('index.html?next=live.html'); throw new Error('sign in first'); }
+$('hi').textContent = `Hi ${me.name || ''}! Type the PIN from your teacher.`; show('vPin'); $('pin').focus();
+
+let test = null, tid = null, ref = null, answers = [], cur = 0, deadline = 0, tick = null, stopTest = null, stopRes = null, sent = false;
+
+$('pinForm').onsubmit = async e => {
+  e.preventDefault(); const pin = $('pin').value.trim(); $('pErr').textContent = '';
+  if (!/^\d{4,6}$/.test(pin)) { $('pErr').textContent = 'The PIN is 4 to 6 numbers.'; return; }
+  $('join').disabled = true;
+  try {
+    const p = await getDoc(doc(db, 'pins', pin));
+    if (!p.exists()) throw new Error('No test is open with this PIN. Check the PIN with your teacher.');
+    tid = p.data().testId; const t = await getDoc(doc(db, 'tests', tid));
+    if (!t.exists() || t.data().status !== 'open') throw new Error('This test is not open.');
+    test = t.data(); ref = doc(db, 'tests', tid, 'results', me.uid);
+    const r = await getDoc(ref);
+    if (r.exists()) {
+      const d = r.data(); answers = d.answers || []; if (d.finished) { sent = true; return finished(); }
+      deadline = (d.startedMs || Date.now()) + test.timeLimit * 60000;
+    } else {
+      answers = Array(test.questions.length).fill(-1); const now = Date.now(); deadline = now + test.timeLimit * 60000;
+      await setDoc(ref, { uid: me.uid, email: me.email, name: me.name || me.email, answers, current: 0, startedMs: now, startedAt: serverTimestamp(), finished: false });
+    }
+    stopTest = onSnapshot(doc(db, 'tests', tid), s => { if (s.exists() && s.data().status !== 'open' && !sent) submit(true); });
+    startTimer(); cur = Math.max(0, answers.findIndex(a => a === -1)); if (cur < 0) cur = 0; render(); show('vQ');
+  } catch (err) { $('pErr').textContent = err.message.includes('permission') ? 'You cannot join this test.' : err.message; }
+  $('join').disabled = false;
+};
+function startTimer() {
+  $('timer').hidden = false; clearInterval(tick);
+  const up = () => { const s = Math.max(0, Math.ceil((deadline - Date.now()) / 1000)); $('tNum').textContent = String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); $('timer').classList.toggle('hurry', s <= 60); if (s <= 0 && !sent) submit(true); };
+  up(); tick = setInterval(up, 500);
+}
+function render() {
+  const q = test.questions[cur], n = test.questions.length;
+  $('qTopic').textContent = q.topic || 'Question'; $('qNum').textContent = `Question ${cur + 1} of ${n}`; $('qText').textContent = q.q;
+  $('opts').innerHTML = q.options.map((o, k) => `<button class="opt" type="button" aria-pressed="${answers[cur] === k}" data-k="${k}"><span class="k">${'ABCD'[k]}</span>${esc(o)}</button>`).join('');
+  $('opts').querySelectorAll('.opt').forEach(b => b.onclick = () => choose(+b.dataset.k));
+  $('prev').disabled = cur === 0; $('prev').style.visibility = cur === 0 ? 'hidden' : 'visible';
+  $('next').hidden = cur === n - 1; $('submit').hidden = cur !== n - 1;
+  $('dots').innerHTML = test.questions.map((_, i) => `<button type="button" class="${answers[i] !== -1 ? 'done' : ''} ${i === cur ? 'here' : ''}" data-i="${i}" aria-label="Question ${i + 1}">${i + 1}</button>`).join('');
+  $('dots').querySelectorAll('button').forEach(b => b.onclick = () => { cur = +b.dataset.i; render(); });
+}
+async function choose(k) {
+  if (sent) return; answers[cur] = k; render();
+  try { await updateDoc(ref, { answers, current: cur }); } catch (e) { console.warn(e); }
+  if (cur < test.questions.length - 1) setTimeout(() => { cur++; render(); }, 350);
+}
+$('prev').onclick = () => { if (cur > 0) { cur--; render(); } };
+$('next').onclick = () => { if (cur < test.questions.length - 1) { cur++; render(); } };
+$('submit').onclick = () => {
+  const left = answers.filter(a => a === -1).length;
+  if (left && !confirm(`You have ${left} question(s) without an answer. Send your answers now?`)) return;
+  submit(false);
+};
+async function submit(auto) {
+  if (sent) return; sent = true; clearInterval(tick); $('timer').hidden = true;
+  try { await updateDoc(ref, { answers, finished: true, submittedAt: serverTimestamp() }); } catch (e) { console.warn(e); }
+  if (auto) $('dText').textContent = 'The time is up, so your answers were sent. Your teacher will share your score when the test ends.';
+  finished();
+}
+function finished() {
+  if (stopTest) stopTest(); show('vDone'); $('timer').hidden = true;
+  stopRes = onSnapshot(ref, s => { const d = s.data(); if (d && d.released) {
+    $('dTitle').textContent = 'Your score'; $('dText').textContent = test ? test.title || '' : '';
+    $('dScore').hidden = false; $('dBig').textContent = `${d.score} / ${d.total}`;
+    $('dBadge').textContent = d.score / d.total >= .5 ? 'Outstanding! ⭐' : 'Good try! Keep practising.';
+  } });
+}
+</script>
+</body>
+</html>
