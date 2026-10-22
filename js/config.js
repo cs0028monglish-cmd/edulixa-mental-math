@@ -11,7 +11,7 @@ export const firebaseConfig = {
 
 // Administrators: these accounts open the admin panel and are not limited to two devices.
 // The same list is written in firestore.rules — keep both in step.
-export const ADMIN_EMAILS = ["abeer.wafaa@monglish.uk", "soha.mohamed@monglish.uk"];
+export const ADMIN_EMAILS = ["abeer.wafaa@monglish.uk", "soha.mohamed@monglish.uk", "hayam.mahmoud@monglish.uk"];
 
 // How many devices one student account may use.
 export const MAX_DEVICES = 2;

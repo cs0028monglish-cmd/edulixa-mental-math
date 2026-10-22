@@ -7,7 +7,7 @@ service cloud.firestore {
     // Keep this list the same as ADMIN_EMAILS in js/config.js
     function isAdmin() {
       return signedIn() && request.auth.token.email != null &&
-        request.auth.token.email.lower() in ['abeer.wafaa@monglish.uk', 'soha.mohamed@monglish.uk'];
+        request.auth.token.email.lower() in ['abeer.wafaa@monglish.uk', 'soha.mohamed@monglish.uk', 'hayam.mahmoud@monglish.uk'];
     }
 
     // Student profiles: name, email, books, devices

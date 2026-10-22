@@ -224,7 +224,7 @@ td .sub{display:block;color:var(--muted);font-size:12.5px;font-weight:600}
 import { initializeApp } from './vendor/firebase/firebase-app.js';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, deleteUser, updatePassword, signOut as so, inMemoryPersistence, setPersistence } from './vendor/firebase/firebase-auth.js';
 import { collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, writeBatch, serverTimestamp, addDoc } from './vendor/firebase/firebase-firestore.js';
-import { db, currentProfile, logout, useEmulator } from './js/portal.js';
+import { db, requireSignIn, logout, useEmulator, toast } from './js/portal.js';
 import { firebaseConfig, BOOKS } from './js/config.js';
 import { BANK } from './js/bank.js';
 
@@ -235,8 +235,8 @@ const fmtDate = t => { const d = t && t.toDate ? t.toDate() : (t ? new Date(t) :
 const PASS_PCT = 50;
 
 /* ---------- admin check ---------- */
-const me = await currentProfile();
-if (!me) { location.replace('index.html?next=admin.html'); throw new Error('not signed in'); }
+const me = await requireSignIn('admin.html');
+if (!me) throw new Error('not signed in');
 if (!me.admin) { document.getElementById('gate').textContent = 'This page is for administrators only.'; setTimeout(() => location.replace('index.html'), 1800); throw new Error('not admin'); }
 $('gate').hidden = true; $('me').textContent = me.email;
 $('logoutBtn').onclick = async () => { await logout(); location.replace('index.html'); };
@@ -284,7 +284,7 @@ function renderUsers() {
   }).join('') : '<tr><td colspan="5">No users yet.</td></tr>';
   $('uRows').querySelectorAll('tr[data-uid]').forEach(tr => {
     const u = USERS.find(x => x.uid === tr.dataset.uid); const bx = tr.querySelector('[data-books]');
-    if (bx) bookChips(bx, u.books || [], async books => { await updateDoc(doc(db, 'users', u.uid), { books }); u.books = books; });
+    if (bx) bookChips(bx, u.books || [], async books => { try { await updateDoc(doc(db, 'users', u.uid), { books }); u.books = books; toast(`Books saved for ${u.name}.`, 2500); } catch (e) { toast('Could not save the books. Please try again.'); renderUsers(); } });
     tr.querySelectorAll('[data-act]').forEach(b => b.onclick = () => userAction(b.dataset.act, u, tr, b));
   });
 }
@@ -324,7 +324,7 @@ $('userForm').onsubmit = async e => {
   }
   $('uAdd').disabled = false;
 };
-loadUsers();
+loadUsers().catch(() => { $("uRows").innerHTML = "<tr><td colspan=\"5\">Could not load the users. Check the internet and refresh the page.</td></tr>"; });
 
 /* ---------- question bank + test builder ---------- */
 let CUSTOM = [], SELECTED = [];

@@ -101,13 +101,13 @@ p.lede{margin:0 0 16px;color:var(--muted);font-weight:700}
 
 <script type="module">
 import { doc, getDoc, setDoc, updateDoc, onSnapshot, serverTimestamp } from './vendor/firebase/firebase-firestore.js';
-import { db, currentProfile } from './js/portal.js';
+import { db, requireSignIn, toast } from './js/portal.js';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const show = v => ['vPin', 'vQ', 'vDone'].forEach(x => $(x).hidden = x !== v);
 
-const me = await currentProfile();
-if (!me) { location.replace('index.html?next=live.html'); throw new Error('sign in first'); }
+const me = await requireSignIn('live.html');
+if (!me) throw new Error('sign in first');
 $('hi').textContent = `Hi ${me.name || ''}! Type the PIN from your teacher.`; show('vPin'); $('pin').focus();
 
 let test = null, tid = null, ref = null, answers = [], cur = 0, deadline = 0, tick = null, stopTest = null, stopRes = null, sent = false;
@@ -152,9 +152,12 @@ function render() {
 }
 async function choose(k) {
   if (sent) return; answers[cur] = k; render();
-  try { await updateDoc(ref, { answers, current: cur }); } catch (e) { console.warn(e); }
+  try { await updateDoc(ref, { answers, current: cur }); } catch (e) { console.warn(e); toast('Your answer could not be saved yet. Check the internet; it will be sent with your next answer.'); }
   if (cur < test.questions.length - 1) setTimeout(() => { cur++; render(); }, 350);
 }
+document.querySelectorAll('a[href="index.html"]').forEach(l => l.addEventListener('click', e => {
+  if (test && !sent && !confirm('Leave the test? Your answers so far are saved, and you can come back with the same PIN while the test is open.')) e.preventDefault();
+}));
 $('prev').onclick = () => { if (cur > 0) { cur--; render(); } };
 $('next').onclick = () => { if (cur < test.questions.length - 1) { cur++; render(); } };
 $('submit').onclick = () => {

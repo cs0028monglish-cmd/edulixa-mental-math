@@ -51,6 +51,7 @@ button{font:inherit;cursor:pointer}
 @keyframes bob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-12px) rotate(1deg)}}
 @keyframes pop{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 .scroll-hint{position:absolute;z-index:3;left:50%;bottom:16px;transform:translateX(-50%);color:#fff;font-weight:800;font-size:13px;letter-spacing:.1em;text-transform:uppercase;opacity:.9}
+@media (max-width:1100px){.speech{display:none}}
 @media (max-width:760px){
   .hero-figure{right:50%;transform:translateX(50%);height:min(40%,330px);bottom:8%}
   .speech{display:none}
@@ -208,7 +209,7 @@ body.gated .hero-figure{opacity:.95}
     <a class="opt" href="#howto">For parents</a>
     <a class="live" href="live.html">Live test</a>
     <a class="adm" id="adminLink" href="admin.html" hidden>Admin panel</a>
-    <span class="who"><span class="me" id="me"></span><button id="logoutBtn" type="button">Log out</button></span>
+    <span class="who"><span class="me" id="me"></span><button id="logoutBtn" type="button" title="Log out and go back to the sign-in window"><span aria-hidden="true">←</span> Log out</button></span>
   </nav>
 </header>
 
@@ -262,6 +263,7 @@ body.gated .hero-figure{opacity:.95}
   <div class="rbar gutter">
     <button class="back" id="back" type="button"><span aria-hidden="true">←</span> Back to library</button>
     <div class="rtitle" id="rtitle">Book</div>
+    <a class="game-btn" id="rgame" href="#" hidden>▶ Play game</a>
     <form class="jump" id="jump"><label for="jumpTo">Page</label><input id="jumpTo" type="number" min="1" inputmode="numeric"><button class="ctl" type="submit">Go</button></form>
   </div>
   <div class="book-wrap gutter" id="bookWrap"><div class="loading" id="loading">Opening the book…</div></div>
@@ -368,7 +370,9 @@ BOOKS.forEach((b,i)=>{
 });
 cards=[...stage.children];document.querySelector('.controls').hidden=BOOKS.length<2;layout();
 // deep link: #L1..#L5
-const h=location.hash.replace('#','');const hi=BOOKS.findIndex(b=>b.id===h);if(hi>=0){go(hi);openBook(hi)}
+const h=location.hash.replace('#','');const sh=h.startsWith('shelf-')?h.slice(6):'';
+const hi=BOOKS.findIndex(b=>b.id===(sh||h));
+if(hi>=0){go(hi);try{history.replaceState(null,'',location.pathname)}catch(e){}if(sh)requestAnimationFrame(()=>document.getElementById('levels').scrollIntoView());else openBook(hi)}
 }
 window.buildShelf=buildShelf;
 function layout(){const narrow=innerWidth<640;cards.forEach((c,i)=>{const o=i-active,a=Math.abs(o);
@@ -393,13 +397,13 @@ function loadAround(idx){for(let k=idx-2;k<=idx+5;k++){const im=imgs[k];if(im&&!
 function fitSize(){const w=wrap.clientWidth-8,h=wrap.clientHeight-8;const ratio=1273/900;const portrait=w<760;
   let ph=h,pw=ph/ratio;const spreadW=portrait?pw:pw*2;if(spreadW>w){pw=portrait?w:w/2;ph=pw*ratio}return{pw:Math.floor(pw),ph:Math.floor(ph),portrait}}
 function openBook(i){const b=BOOKS[i];cur=b;lastFocus=document.activeElement;reader.hidden=false;document.body.style.overflow='hidden';
-  document.getElementById('rtitle').textContent=`${b.level} · ${b.name}`;jumpTo.max=b.pages;jumpTo.value='';
-  try{history.replaceState(null,'','#'+b.id)}catch(e){}
+  document.getElementById('rtitle').textContent=`${b.level} · ${b.name}`;const rg=document.getElementById('rgame');rg.hidden=!GAMES[b.id];if(GAMES[b.id])rg.href=GAMES[b.id];jumpTo.max=b.pages;jumpTo.value='';
+  try{history.pushState({reader:b.id},'','#'+b.id)}catch(e){}
   buildBook();document.getElementById('back').focus();}
 function buildBook(startPage=0){const b=cur;if(flip){try{flip.destroy()}catch(e){}flip=null}
   wrap.innerHTML='';const holder=document.createElement('div');holder.id='book';wrap.appendChild(holder);
   imgs=[];const nodes=[];for(let n=1;n<=b.pages;n++){const p=document.createElement('div');p.className='page';p.dataset.density=(n===1||n===b.pages)?'hard':'soft';
-    const im=document.createElement('img');im.alt=`${b.name} page ${n}`;im.dataset.src=pageSrc(b,n);im.decoding='async';p.appendChild(im);holder.appendChild(p);nodes.push(p);imgs.push(im)}
+    const im=document.createElement('img');im.alt=`${b.name} page ${n}`;im.onerror=()=>{if(!im.dataset.retry){im.dataset.retry=1;setTimeout(()=>{im.src=im.dataset.src+'?r='+Date.now()},1500)}};im.dataset.src=pageSrc(b,n);im.decoding='async';p.appendChild(im);holder.appendChild(p);nodes.push(p);imgs.push(im)}
   const {pw,ph,portrait}=fitSize();
   if(!window.St||!St.PageFlip){ // fallback: simple one-page viewer
     holder.style.width=pw+'px';holder.style.height=ph+'px';let idx=startPage;const show=()=>{nodes.forEach((n,k)=>n.hidden=k!==idx);loadAround(idx);count.textContent=`${idx+1} / ${b.pages}`};
@@ -409,10 +413,11 @@ function buildBook(startPage=0){const b=cur;if(flip){try{flip.destroy()}catch(e)
   const upd=()=>{const k=flip.getCurrentPageIndex();loadAround(k);const two=flip.getOrientation&&flip.getOrientation()==='landscape'&&k>0&&k<b.pages-1;
     count.textContent=two?`${k+1}–${Math.min(k+2,b.pages)} / ${b.pages}`:`${k+1} / ${b.pages}`};
   flip.on('flip',upd);flip.on('changeOrientation',upd);upd();}
-function closeBook(){reader.hidden=true;document.body.style.overflow='';if(flip){try{flip.destroy()}catch(e){}flip=null}wrap.innerHTML='';
-  try{history.replaceState(null,'',location.pathname)}catch(e){}
+function closeBook(fromHistory){if(reader.hidden)return;reader.hidden=true;document.body.style.overflow='';if(flip){try{flip.destroy()}catch(e){}flip=null}wrap.innerHTML='';
+  if(!fromHistory){try{if(history.state&&history.state.reader)history.back();else history.replaceState(null,'',location.pathname)}catch(e){}}
   if(lastFocus&&lastFocus.focus)lastFocus.focus();}
-document.getElementById('back').onclick=closeBook;
+addEventListener('popstate',()=>{if(!reader.hidden)closeBook(true)});
+document.getElementById('back').onclick=()=>closeBook();
 document.getElementById('rprev').onclick=()=>flip&&flip.flipPrev();
 document.getElementById('rnext').onclick=()=>flip&&flip.flipNext();
 document.getElementById('jump').addEventListener('submit',e=>{e.preventDefault();if(!flip)return;const n=Math.max(1,Math.min(cur.pages,parseInt(jumpTo.value||'1',10)));loadAround(n-1);flip.turnToPage(n-1);setTimeout(()=>{const k=flip.getCurrentPageIndex();loadAround(k);count.textContent=`${k+1} / ${cur.pages}`},50)});
@@ -420,41 +425,53 @@ addEventListener('keydown',e=>{if(reader.hidden)return;if(e.key==='Escape')close
 let rt;addEventListener('resize',()=>{if(reader.hidden||!flip)return;clearTimeout(rt);rt=setTimeout(()=>{const k=flip.getCurrentPageIndex();buildBook(k)},250)});
 </script>
 <script type="module">
-import { login, logout, currentProfile, errText } from './js/portal.js';
+import { login, logout, currentProfile, errText, markEntered, hasEntered, toast } from './js/portal.js';
 const $ = id => document.getElementById(id), gate = $('gate');
 const next = new URLSearchParams(location.search).get('next');
+const safeNext = next && /^(games\/[\w-]+\.html|live\.html|admin\.html)$/.test(next) ? next : null;
+let entered = false;
 function enter(p) {
-  if (next && /^(games\/[\w-]+\.html|live\.html|admin\.html)$/.test(next)) { location.replace(next); return; }
+  if (entered) return; entered = true; markEntered();
+  if (safeNext) { location.replace(safeNext); return; }
+  try { if (location.search) history.replaceState(null, '', location.pathname + location.hash); } catch (e) {}
   $('me').textContent = p.name ? `${p.name} · ${p.email}` : p.email; $('adminLink').hidden = !p.admin;
   window.buildShelf(p.admin ? ['L1','L2','L3','L4','L5'] : (p.books || []));
   gate.hidden = true; document.body.classList.remove('gated'); document.body.style.overflow = '';
 }
 function showLogin(msg, admin) {
   $('boot').hidden = true; $('gateHead').hidden = false; $('gateCards').hidden = false; gate.hidden = false;
-  document.body.classList.add('gated'); scrollTo(0, 0);
+  document.body.classList.add('gated'); document.body.style.overflow = 'hidden'; scrollTo(0, 0);
   $(admin ? 'aErr' : 'sErr').textContent = msg || '';
   if (matchMedia('(pointer:fine)').matches) setTimeout(() => $(admin ? 'aEmail' : 'sEmail').focus(), 60);
 }
 document.body.style.overflow = 'hidden'; document.body.classList.add('gated');
-$('sForm').addEventListener('submit', async e => {
-  e.preventDefault(); $('sBtn').disabled = true; $('sErr').textContent = '';
-  try { enter(await login($('sEmail').value, $('sPass').value)); }
-  catch (err) { $('sErr').textContent = errText(err); }
-  $('sBtn').disabled = false;
-});
-$('aForm').addEventListener('submit', async e => {
-  e.preventDefault(); $('aBtn').disabled = true; $('aErr').textContent = '';
+// If the page takes too long (slow internet), show the sign-in window anyway.
+const bootTimer = setTimeout(() => { if (!entered && !$('boot').hidden) showLogin('The connection is slow. You can still try to sign in.'); }, 9000);
+
+async function doLogin(form, admin) {
+  const btn = $(admin ? 'aBtn' : 'sBtn'), err = $(admin ? 'aErr' : 'sErr');
+  const email = $(admin ? 'aEmail' : 'sEmail').value, pass = $(admin ? 'aPass' : 'sPass').value;
+  if (!email.trim() || !pass) { err.textContent = 'Please type your email and password.'; return; }
+  btn.disabled = true; const label = btn.innerHTML; btn.textContent = 'Signing in…'; err.textContent = '';
   try {
-    const p = await login($('aEmail').value, $('aPass').value);
-    if (!p.admin) { await logout(); throw new Error('This account is not an administrator. Please use the student sign in.'); }
-    location.assign('admin.html'); return;
-  } catch (err) { $('aErr').textContent = errText(err); }
-  $('aBtn').disabled = false;
-});
-$('logoutBtn').onclick = async () => { await logout(); location.replace('index.html'); };
-const p = await currentProfile();
+    const p = await login(email, pass);
+    if (admin && !p.admin) { await logout(); throw new Error('This account is not an administrator. Please use the student sign in.'); }
+    if (admin) { markEntered(); location.assign(safeNext || 'admin.html'); return; }
+    enter(p);
+  } catch (e) { err.textContent = errText(e); $(admin ? 'aPass' : 'sPass').select(); }
+  btn.disabled = false; btn.innerHTML = label;
+}
+$('sForm').addEventListener('submit', e => { e.preventDefault(); doLogin(e.target, false); });
+$('aForm').addEventListener('submit', e => { e.preventDefault(); doLogin(e.target, true); });
+$('logoutBtn').onclick = async () => { try { await logout(); } catch (e) {} location.replace('index.html'); };
+
+// Every new visit starts at the sign-in window. Only a user who already signed in
+// in this tab (for example coming back from a game) goes straight to the library.
 let msg = ''; try { msg = sessionStorage.getItem('emm-msg') || ''; sessionStorage.removeItem('emm-msg'); } catch (e) {}
-if (p && !msg) enter(p); else { if (p) enter(p); if (msg) { if (p) alert(msg); else showLogin(msg); } else showLogin(); }
+const p = await currentProfile(8000);
+clearTimeout(bootTimer);
+if (p && hasEntered()) { enter(p); if (msg) toast(msg); }
+else { if (p) { try { await logout(); } catch (e) {} } if (!entered) showLogin(msg); }
 </script>
 </body>
 </html>
